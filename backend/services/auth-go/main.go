@@ -42,7 +42,7 @@ func reportHealth(rdb *redis.Client) {
 func main() {
 	// Connect to Redis
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "redis", // Use the Docker service name
+		Addr: "redis:6379", // Use the Docker service name
 		DB: 0,
 	})
     
