@@ -67,7 +67,7 @@ graph TD
 
 | Category      | Technology                                    |
 |---------------|-----------------------------------------------|
-| **Frontend**  | Next.js 14 (App Router), React, TypeScript    |
+| **Frontend**  | Next.js 15 (App Router), React, TypeScript    |
 |               | Tailwind CSS, shadcn/ui                       |
 |               | TanStack Query (React Query), Zustand, NextAuth.js |
 | **Backend**   | Go (Gin), Node.js (Fastify), Python (Flask)   |
@@ -89,7 +89,7 @@ graph TD
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/atlas-dashboard.git
+    git clone https://github.com/mrdhanz/atlas-dashboard.git
     cd atlas-dashboard
     ```
 
