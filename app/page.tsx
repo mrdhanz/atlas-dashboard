@@ -1,103 +1,67 @@
-import Image from "next/image";
+'use client'
+import { Activity, CreditCard, DollarSign, FolderKanban } from 'lucide-react';
+import { DashboardCard } from '@/components/ui/dashboard-card';
+import { getProjects, Project } from "@/app/_lib/api";
+import { useQuery } from '@tanstack/react-query';
+import { RecentActivityFeed, ActivityEvent } from "@/components/dashboard/recent-activity-feed";
+import { useState } from 'react';
+import { useWebSocket } from './_hooks/use-websocket';
+import { ServiceHealth } from "@/components/dashboard/service-health";
 
-export default function Home() {
+export default function HomePage() {
+  const [activityEvents, setActivityEvents] = useState<ActivityEvent[]>([]);
+
+  // The callback that will be passed to the hook
+  const handlePipelineUpdate = (newEvent: ActivityEvent) => {
+      // Add the new event to the beginning of the list
+      setActivityEvents(prevEvents => [newEvent, ...prevEvents]);
+  };
+
+  // Pass the callback to our WebSocket hook
+  useWebSocket(handlePipelineUpdate);
+  // Use the useQuery hook
+  const { data: projects, isLoading, isError } = useQuery<Project[]>({
+    queryKey: ['projects'], // A unique key for this query
+    queryFn: getProjects,
+  });
+
+  const projectCount = projects?.length ?? 0;
+  const projectCountDisplay = isLoading ? "..." : projectCount.toString();
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+      <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+        <DashboardCard 
+          title="Active Projects"
+          icon={FolderKanban}
+          value={projectCountDisplay} // <-- DYNAMIC VALUE
+          description={isError ? "Could not load data" : "+0 since last month"}
         />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+        <DashboardCard 
+          title="Successful Deployments"
+          icon={Activity}
+          value="521"
+          description="99.8% success rate"
+        />
+        <DashboardCard 
+          title="Secrets Managed"
+          icon={CreditCard} // Using CreditCard as a stand-in for secrets
+          value="243"
+          description="Across 12 projects"
+        />
+        <DashboardCard 
+          title="Monthly Cost"
+          icon={DollarSign}
+          value="$1,234.56"
+          description="Forecasted from usage"
+        />
+      </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
+        <RecentActivityFeed events={activityEvents} />
+        <ServiceHealth />
+      </div>
+    </main>
   );
 }
