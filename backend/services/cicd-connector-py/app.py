@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO)
 
 # The internal URL of our Node.js service's broadcast endpoint
 # We will create this endpoint in the next step.
-NODE_SERVICE_BROADCAST_URL = "http://localhost:8081/api/internal/broadcast"
+NODE_SERVICE_BROADCAST_URL = "http://projects-service:8081/api/internal/broadcast"
 
 @app.route('/api/v1/hooks/generic', methods=['POST'])
 def handle_generic_hook():

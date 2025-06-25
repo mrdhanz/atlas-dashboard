@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   frontend:
     build:
@@ -11,8 +10,11 @@ services:
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXT_PUBLIC_PROJECTS_API_URL=${NEXT_PUBLIC_PROJECTS_API_URL}
       - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
+      - AUTH_TRUST_HOST=true
     depends_on:
+      # The frontend needs both services to be fully functional on page load.
       - auth-service
+      - projects-service
     networks:
       - atlas-net
 
@@ -22,6 +24,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    depends_on:
+      # This service reports its health to Redis, so it must wait for Redis.
+      - redis
     networks:
       - atlas-net
       
@@ -34,7 +39,10 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN}
     depends_on:
       postgres-db:
-        condition: service_healthy # Wait for DB to be ready
+        condition: service_healthy # Correctly waits for the DB to be ready.
+      # This service also reports its health to Redis.
+      redis:
+        condition: service_started
     networks:
       - atlas-net
 
@@ -42,10 +50,12 @@ services:
     build: ./backend/services/cicd-connector-py
     ports:
       - "8082:8082"
-    networks:
-      - atlas-net
     depends_on:
       - projects-service
+      # This service also reports its health to Redis.
+      - redis
+    networks:
+      - atlas-net
 
   postgres-db:
     image: postgres:15-alpine
@@ -55,11 +65,13 @@ services:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
     ports:
-      - "5432:5432" # Expose port for local tools like DBeaver/TablePlus
+      - "5432:5432"
     volumes:
+      # This tells the service to USE the named volume defined at the bottom.
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U atlas_user -d atlas_db"]
+      # Now uses variables, making it robust and configurable via .env file.
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -70,10 +82,15 @@ services:
     image: redis:7-alpine
     restart: always
     ports:
-      - "6379:6379" # Expose for local debugging if needed
+      - "6379:6379"
     networks:
       - atlas-net
 
 networks:
   atlas-net:
     driver: bridge
+
+# This top-level key DEFINES the volume, fixing the "undefined volume" error.
+volumes:
+  postgres_data:
+    # An empty driver means Docker will use the default local driver for persistence.
