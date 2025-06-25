@@ -17,7 +17,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         try {
           // This is the URL of our Go service inside the Docker network.
           // 'auth-service' is the hostname defined in docker-compose.yml.
-          const response = await fetch("auth-service/api/v1/auth/login", {
+          const response = await fetch("auth-service:8080/api/v1/auth/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
