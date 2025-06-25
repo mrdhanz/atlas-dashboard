@@ -48,7 +48,7 @@ def handle_generic_hook():
         return jsonify({"error": "failed to contact broadcast service"}), 500
 
 # Connect to Redis
-r = redis.Redis(host='flexible-pug-51108.upstash.io', password='AcekAAIjcDE4NjEzY2QxZjRlNjg0N2E3YjNhYWZhYjgxYmRiY2U0MXAxMA', port=6379, ssl=True, db=0, decode_responses=True)
+r = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
 
 def report_health():
     while True:
