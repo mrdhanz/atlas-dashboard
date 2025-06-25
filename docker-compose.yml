@@ -1,0 +1,79 @@
+version: '3.8'
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - AUTH_SECRET=${AUTH_SECRET}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXT_PUBLIC_PROJECTS_API_URL=${NEXT_PUBLIC_PROJECTS_API_URL}
+      - NEXT_PUBLIC_WS_URL=${NEXT_PUBLIC_WS_URL}
+    depends_on:
+      - auth-service
+    networks:
+      - atlas-net
+
+  auth-service:
+    build:
+      context: ./backend/services/auth-go
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - atlas-net
+      
+  projects-service:
+    build: ./backend/services/projects-node
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_CONNECTION_URI=${DB_CONNECTION_URI}
+      - CORS_ORIGIN=${CORS_ORIGIN}
+    depends_on:
+      postgres-db:
+        condition: service_healthy # Wait for DB to be ready
+    networks:
+      - atlas-net
+
+  cicd-connector-py:
+    build: ./backend/services/cicd-connector-py
+    ports:
+      - "8082:8082"
+    networks:
+      - atlas-net
+    depends_on:
+      - projects-service
+
+  postgres-db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    ports:
+      - "5432:5432" # Expose port for local tools like DBeaver/TablePlus
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlas_user -d atlas_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - atlas-net
+  
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379" # Expose for local debugging if needed
+    networks:
+      - atlas-net
+
+networks:
+  atlas-net:
+    driver: bridge
