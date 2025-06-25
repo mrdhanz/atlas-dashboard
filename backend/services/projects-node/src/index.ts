@@ -182,10 +182,8 @@ server.post("/api/internal/broadcast", async (request, reply) => {
 
 // --- Redis and Health Check Setup ---
 const redis = new Redis({
-  host: "flexible-pug-51108.upstash.io", // Docker service name
+  host: "redis", // Docker service name
   port: 6379,
-  password: "AcekAAIjcDE4NjEzY2QxZjRlNjg0N2E3YjNhYWZhYjgxYmRiY2U0MXAxMA",
-  tls: {},
 });
 
 // Report own health

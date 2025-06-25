@@ -3,7 +3,6 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
 	"fmt"
 	"net/http"
 	"time"
@@ -43,12 +42,8 @@ func reportHealth(rdb *redis.Client) {
 func main() {
 	// Connect to Redis
 	rdb := redis.NewClient(&redis.Options{
-		Addr: "flexible-pug-51108.upstash.io:6379", // Use the Docker service name
-		Password: "AcekAAIjcDE4NjEzY2QxZjRlNjg0N2E3YjNhYWZhYjgxYmRiY2U0MXAxMA", 
+		Addr: "redis", // Use the Docker service name
 		DB: 0,
-		TLSConfig: &tls.Config{
-			
-		},
 	})
     
     // Start the health reporting goroutine
