@@ -2,7 +2,6 @@
 
 Atlas is a full-stack, polyglot microservice application designed to be a self-hostable command center for developers. It centralizes project management, service health monitoring, and real-time CI/CD activity, demonstrating a modern, production-ready architecture.
 
-**Live Demo:** [Link to your deployed app]
 **Login:** `dandi@atlas.dev` / `password123`
 
 ---
